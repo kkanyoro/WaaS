@@ -41,7 +41,7 @@ export interface WeddingConfig {
 
 // Data
 export const siteConfig: WeddingConfig = {
-    coupleNames: "Faith Weds Chris",
+    coupleNames: "Faith & Chris",
     weddingDate: "2026-07-12T14:00:00",
     venue: {
         name: "Atlanta, Georgia",
