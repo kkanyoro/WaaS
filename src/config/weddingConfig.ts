@@ -41,7 +41,7 @@ export interface WeddingConfig {
 
 // Data
 export const siteConfig: WeddingConfig = {
-    coupleNames: "Faith & Chris",
+    coupleNames: "Faith Weds Chris",
     weddingDate: "2026-07-12T14:00:00",
     venue: {
         name: "Atlanta, Georgia",
@@ -67,7 +67,7 @@ export const siteConfig: WeddingConfig = {
         enabled: true,
         type: "till", // till / paybill / send_money
         number: "123456",
-        accountName: "Faith and Chris Wedding", // Reassures guests they are paying the right person
+        accountName: "Faith Weds Chris",
         message: "Your presence at our wedding is the greatest gift of all. However, if you wish to honor us with a cash gift, you can use the details below.",
     },
     gallery: {

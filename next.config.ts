@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ["stuart-ricky-discussing-ultra.trycloudflare.com"],
+  allowedDevOrigins: ["faithwedschris.vercel.app"],
   reactCompiler: true,
 };
 

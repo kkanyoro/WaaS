@@ -82,7 +82,7 @@ export async function POST(req: Request) {
                 phone: formattedPhone,
                 amount: Math.ceil(Number(amount)),
                 status: "pending",
-                guest_name: name || "Anonymous Guest"
+                sender_name: name || "Anonymous Guest"
             }]);
 
             if (error) throw error;
