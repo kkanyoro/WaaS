@@ -17,7 +17,7 @@ type RSVP = {
 type Gift = {
     id: string;
     created_at: string;
-    guest_name: string;
+    sender_name: string;
     phone: string;
     amount: number;
     status: string;
@@ -256,7 +256,7 @@ export default function AdminDashboard() {
                                                 <tr key={gift.id} className="hover:bg-gray-50/50 transition-colors">
                                                     <td className="p-4">
                                                         <p className="font-serif text-base text-gray-900 leading-tight">
-                                                            {gift.guest_name || "Anonymous"}
+                                                            {gift.sender_name || "Anonymous"}
                                                         </p>
                                                         <p className="text-xs text-gray-500 font-mono mt-1">
                                                             +{gift.phone}
