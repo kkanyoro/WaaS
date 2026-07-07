@@ -1,12 +1,12 @@
 export interface WeddingConfig {
     coupleNames: string;
-    weddingDate: string; // ISO Format: "2026-12-12T14:00:00"
+    weddingDate: string;
     venue: {
         name: string;
-        mapLink: string; // Google Maps URL
+        mapLink: string;
     };
     theme: {
-        primaryColor: string; // HEX code for Tailwind integration
+        primaryColor: string;
         secondaryColor: string;
         mode: 'light' | 'dark';
     };
@@ -16,17 +16,17 @@ export interface WeddingConfig {
     features: {
         scratchToReveal: boolean;
         backgroundMusic: boolean;
-        musicSrc?: string; // Path to audio file in public folder
+        musicSrc?: string;
         liveGuestbook: boolean;
         backgroundType: 'image' | 'canvas' | 'video';
-        bgAsset?: string; // URL or path to background image
+        bgAsset?: string;
     };
     mpesa: {
         enabled: boolean;
         type: 'till' | 'paybill' | 'send_money';
-        number: string; // The Till, Paybill, or Phone Number
-        accountName?: string; // For Paybill account numbers or the registered Till name
-        message: string; // A polite message about gifting
+        number: string;
+        accountName?: string;
+        message: string;
     };
     gallery: {
         images: string[];
@@ -37,9 +37,14 @@ export interface WeddingConfig {
         schedule: { time: string; event: string; description?: string }[];
         bridalTeam: { name: string; role: string; photo?: string }[];
     };
+    // NEW: Dress Code & FAQs
+    dressCode: {
+        description: string;
+        colors: { name: string; hex: string }[];
+    };
+    faqs: { question: string; answer: string }[];
 }
 
-// Data
 export const siteConfig: WeddingConfig = {
     coupleNames: "Faith & Chris",
     weddingDate: "2026-07-12T14:00:00",
@@ -65,7 +70,7 @@ export const siteConfig: WeddingConfig = {
     },
     mpesa: {
         enabled: true,
-        type: "till", // till / paybill / send_money
+        type: "till",
         number: "123456",
         accountName: "Faith Weds Chris",
         message: "Your presence at our wedding is the greatest gift of all. However, if you wish to honor us with a cash gift, you can use the details below.",
@@ -94,4 +99,16 @@ export const siteConfig: WeddingConfig = {
             { name: "Kelly Kapoor", role: "Bridesmaid" },
         ],
     },
+    // Dress Code & FAQs Data
+    dressCode: {
+        description: "We kindly request our guests to dress in formal evening wear. Please adhere to our wedding color palette below.",
+        colors: [
+            { name: "Burgundy", hex: "#780606" },
+            { name: "Champagne", hex: "#F2E8C6" },
+            { name: "Charcoal", hex: "#36454F" }
+        ]
+    },
+    faqs: [
+        { question: "Can I bring a plus one?", answer: "Due to venue capacity, we can only accommodate guests formally specified on your RSVP." },
+        { question: "Is there parking available?", answer: "Yes, complimentary valet parking is available at the main entrance of the venue." },]
 };
