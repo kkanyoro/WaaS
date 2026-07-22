@@ -19,7 +19,7 @@ export default function Hero() {
     const weddingDateObj = new Date(siteConfig.weddingDate);
     const dateData = {
         month: weddingDateObj.toLocaleDateString("en-US", { month: "short" }).toUpperCase(),
-        day: weddingDateObj.toLocaleDateString("en-US", { day: "numeric" }),
+        day: weddingDateObj.toLocaleDateString("en-US", { day: "2-digit" }),
         year: weddingDateObj.toLocaleDateString("en-US", { year: "numeric" }),
     };
 
