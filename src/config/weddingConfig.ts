@@ -37,7 +37,6 @@ export interface WeddingConfig {
         schedule: { time: string; event: string; description?: string }[];
         bridalTeam: { name: string; role: string; photo?: string }[];
     };
-    // NEW: Dress Code & FAQs
     dressCode: {
         description: string;
         colors: { name: string; hex: string }[];
@@ -47,10 +46,10 @@ export interface WeddingConfig {
 
 export const siteConfig: WeddingConfig = {
     coupleNames: "Faith & Chris",
-    weddingDate: "2026-07-12T14:00:00",
+    weddingDate: "2026-08-01T09:00:00",
     venue: {
-        name: "Atlanta, Georgia",
-        mapLink: "https://maps.app.goo.gl/5Aye5qqZUjvEjAZE7",
+        name: "KALRO, Thika",
+        mapLink: "https://maps.app.goo.gl/F4Y4qy3mav3GD5op8",
     },
     theme: {
         primaryColor: "#780606",
@@ -58,7 +57,7 @@ export const siteConfig: WeddingConfig = {
         mode: "light",
     },
     entrance: {
-        type: "curtains",
+        type: "envelope",
     },
     features: {
         scratchToReveal: true,
@@ -73,7 +72,7 @@ export const siteConfig: WeddingConfig = {
         type: "till",
         number: "123456",
         accountName: "Faith Weds Chris",
-        message: "Your presence at our wedding is the greatest gift of all. However, if you wish to honor us with a cash gift, you can use the details below.",
+        message: "We look forward to your presence as we start a new chapter in our life. If you purpose to gift us, you are welcome. You can use the details below.",
     },
     gallery: {
         images: [
@@ -81,7 +80,7 @@ export const siteConfig: WeddingConfig = {
             "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=800&auto=format&fit=crop",
             "https://images.unsplash.com/photo-1520854221256-17451cc331bf?q=80&w=800&auto=format&fit=crop",
         ],
-        guestAlbumLink: "https://photos.google.com/share/your-album-link-here",
+        guestAlbumLink: "#",
     },
     content: {
         story: "It all started with a simple hello...",
@@ -89,6 +88,10 @@ export const siteConfig: WeddingConfig = {
             { time: "09:00 AM", event: "Arrival & Seating" },
             { time: "10:00 AM", event: "The Vows", description: "Main ceremony begins." },
             { time: "01:00 PM", event: "Reception", description: "Food, drinks, and dancing!" },
+            { time: "03:00 PM", event: "Gifts and speeches" },
+            { time: "04:30 PM", event: "Cake Cutting" },
+
+
         ],
         bridalTeam: [
             { name: "Michael Scott", role: "Best Man" },
@@ -99,16 +102,20 @@ export const siteConfig: WeddingConfig = {
             { name: "Kelly Kapoor", role: "Bridesmaid" },
         ],
     },
-    // Dress Code & FAQs Data
+    // Dress Code & FAQs
     dressCode: {
-        description: "We kindly request our guests to dress in formal evening wear. Please adhere to our wedding color palette below.",
+        description: "We kindly request our guests to dress in elegant wear. Here is our theme color palette.",
         colors: [
-            { name: "Burgundy", hex: "#780606" },
-            { name: "Champagne", hex: "#F2E8C6" },
-            { name: "Charcoal", hex: "#36454F" }
+            { name: "Sage Green", hex: "#9eb3a0" },
+            { name: "Espresso", hex: "#4d3c2a" },
+            { name: "Taupe", hex: "#b2a38d" },
+            { name: "Terracotta", hex: "#c57e6b" },
+            { name: "Slate", hex: "#4f676b" },
+            { name: "Ochre", hex: "#e8b868" }
         ]
     },
     faqs: [
         { question: "Can I bring a plus one?", answer: "Due to venue capacity, we can only accommodate guests formally specified on your RSVP." },
-        { question: "Is there parking available?", answer: "Yes, complimentary valet parking is available at the main entrance of the venue." },]
+        { question: "Is there parking available?", answer: "Yes, parking is available at the main entrance of the venue." },
+        { question: "Any gift preferences?", answer: "We look forward to your presence as we start a new chapter in our life. If you purpose to gift us, you are welcome, preferably in monetary form." },]
 };

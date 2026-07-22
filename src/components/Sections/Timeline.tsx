@@ -22,9 +22,6 @@ const getEventIcon = (eventName: string) => {
         );
     }
 
-
-
-
     // Rings / Ceremony
     if (name.includes("ceremony") || name.includes("vow") || name.includes("ring")) {
         return (
@@ -34,6 +31,7 @@ const getEventIcon = (eventName: string) => {
             </svg>
         );
     }
+
     // Drinks / Cocktail Hour
     if (name.includes("cocktail") || name.includes("drink") || name.includes("bar")) {
         return (
@@ -42,6 +40,7 @@ const getEventIcon = (eventName: string) => {
             </svg>
         );
     }
+
     // Dinner / Food
     if (name.includes("dinner") || name.includes("eat") || name.includes("reception") || name.includes("food")) {
         return (
@@ -50,6 +49,20 @@ const getEventIcon = (eventName: string) => {
             </svg>
         );
     }
+
+    // Cake / Dessert
+    if (name.includes("cake") || name.includes("dessert") || name.includes("sweet")) {
+        return (
+            <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8" />
+                <path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2 1 2 1" />
+                <path d="M2 21h20" />
+                <path d="M12 11v-4" />
+                <path d="M12 3a1 1 0 0 0 0 4 1 1 0 0 0 0-4Z" />
+            </svg>
+        );
+    }
+
     // Music / Dancing / Party
     if (name.includes("dance") || name.includes("party") || name.includes("music") || name.includes("dj")) {
         return (
@@ -58,6 +71,7 @@ const getEventIcon = (eventName: string) => {
             </svg>
         );
     }
+
     // Photos
     if (name.includes("photo") || name.includes("picture")) {
         return (
@@ -66,6 +80,20 @@ const getEventIcon = (eventName: string) => {
             </svg>
         );
     }
+
+    // Gifts / Presents
+    if (name.includes("gift") || name.includes("present") || name.includes("unwrapping")) {
+        return (
+            <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 12 20 22 4 22 4 12" />
+                <rect x="2" y="7" width="20" height="5" />
+                <line x1="12" y1="22" x2="12" y2="7" />
+                <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z" />
+                <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" />
+            </svg>
+        );
+    }
+
     // Default Fallback
     return (
         <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

@@ -16,7 +16,6 @@ export default function Hero() {
 
     const isDateFullyRevealed = monthScratched && dayScratched && yearScratched;
 
-    // Use short month to fit circle
     const weddingDateObj = new Date(siteConfig.weddingDate);
     const dateData = {
         month: weddingDateObj.toLocaleDateString("en-US", { month: "short" }).toUpperCase(),
@@ -34,8 +33,8 @@ export default function Hero() {
     return (
         <section
             ref={containerRef}
-            style={{ position: "relative" }}
-            className="relative flex flex-col items-center justify-center min-h-screen px-4 py-20 text-center z-10 bg-[#fffdf7]/50"
+            // CHANGED: Increased pt-4 md:pt-8 to pt-12 md:pt-16 for more top space
+            className="relative flex flex-col items-center justify-center min-h-[calc(100dvh-4rem)] md:min-h-[calc(100dvh-5rem)] px-4 pt-12 md:pt-16 pb-32 text-center z-10 bg-[#fffdf7]/50"
         >
             <motion.div
                 style={{ opacity, y }}
@@ -54,17 +53,13 @@ export default function Hero() {
 
                 {/* Scratch to Reveal */}
                 <div className="flex flex-col items-center my-10 max-w-2xl mx-auto w-full">
-
                     <p className="text-xs md:text-sm uppercase tracking-[0.2em] text-primary/80 mb-6">
-                        Scratch to reveal the wedding date
+                        Scratch to reveal wedding date and location
                     </p>
 
-                    {/* Force flex-row so they stay on one line even on mobile */}
                     <div className="flex flex-row items-center justify-center gap-3 md:gap-6 w-full">
-
                         {/* Month Segment */}
                         <ScratchCard onComplete={() => setMonthScratched(true)}>
-                            {/* Fixed w/h to create perfect circles */}
                             <div className="w-24 h-24 md:w-32 md:h-32 flex items-center justify-center rounded-full bg-[#fffdf7] font-calligraphy text-primary text-3xl md:text-5xl shadow-sm">
                                 {dateData.month}
                             </div>
@@ -135,7 +130,22 @@ export default function Hero() {
                         </div>
                     </div>
                 </div>
+            </motion.div>
 
+            {/* Absolute positioned bouncing scroll indicator */}
+            {/* CHANGED: Increased bottom-8 to bottom-24 md:bottom-32 to raise it higher */}
+            <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.5, duration: 1 }}
+                className="absolute bottom-24 md:bottom-32 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-primary/70 animate-bounce"
+            >
+                <span className="text-[10px] md:text-xs uppercase tracking-[0.2em] font-medium text-center">
+                    Scroll for details
+                </span>
+                <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
             </motion.div>
         </section>
     );

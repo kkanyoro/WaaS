@@ -48,7 +48,7 @@ export default function Venue() {
                     <div className="relative w-full aspect-square rounded-lg overflow-hidden shadow-2xl border border-primary/20">
                         {/* Note: Standard Google Maps share links (goo.gl) cannot be embedded directly in iframes. 
               We use a beautiful stylized map iframe here, while the button above links to the actual destination. */}
-                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d212270.92286602655!2d-84.58502189693145!3d33.76756040803392!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x88f5045d6993098d%3A0x66fede2f990b630b!2sAtlanta%2C%20GA%2C%20USA!5e0!3m2!1sen!2ske!4v1774791479086!5m2!1sen!2ske"
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3989.207785784146!2d37.0777369!3d-1.0023554!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f4c55c0000001%3A0x3926f072e020c78c!2sKenya%20Agricultural%20Research%20Institute%20-%20Thika!5e0!3m2!1sen!2ske!4v1784714066514!5m2!1sen!2ske"
                             width="600"
                             height="450"
                             style={{ border: 0, filter: "grayscale(30%) contrast(90%) sepia(20%)" }}
