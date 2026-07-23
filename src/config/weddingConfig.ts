@@ -57,7 +57,7 @@ export const siteConfig: WeddingConfig = {
         mode: "light",
     },
     entrance: {
-        type: "envelope",
+        type: "curtains",
     },
     features: {
         scratchToReveal: true,

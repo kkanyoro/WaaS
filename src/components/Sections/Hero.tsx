@@ -135,7 +135,7 @@ export default function Hero() {
             {/* Absolute positioned bouncing scroll indicator */}
             {/* CHANGED: Increased bottom-8 to bottom-24 md:bottom-32 to raise it higher */}
             <motion.div
-                initial={{ opacity: 0, y: -10 }}
+                initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.5, duration: 1 }}
                 className="absolute bottom-24 md:bottom-32 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-primary/70 animate-bounce"
