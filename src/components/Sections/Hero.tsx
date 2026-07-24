@@ -23,18 +23,23 @@ export default function Hero() {
         year: weddingDateObj.toLocaleDateString("en-US", { year: "numeric" }),
     };
 
-    const { scrollYProgress } = useScroll({
+    // CHANGED: Added 'scrollY' to track exact pixels scrolled globally
+    const { scrollYProgress, scrollY } = useScroll({
         target: containerRef,
         offset: ["start start", "end start"],
     });
+
+    // Main hero fade
     const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
     const y = useTransform(scrollYProgress, [0, 1], [0, -100]);
+
+    // CHANGED: Tied opacity to absolute pixels. Fades from 1 to 0 perfectly in the first 100px of scrolling.
+    const indicatorOpacity = useTransform(scrollY, [0, 100], [1, 0]);
 
     return (
         <section
             ref={containerRef}
-            // CHANGED: Increased pt-4 md:pt-8 to pt-12 md:pt-16 for more top space
-            className="relative flex flex-col items-center justify-center min-h-[calc(100dvh-4rem)] md:min-h-[calc(100dvh-5rem)] px-4 pt-12 md:pt-16 pb-32 text-center z-10 bg-[#fffdf7]/50"
+            className="relative flex flex-col items-center justify-start min-h-[calc(100dvh-4rem)] md:min-h-[calc(100dvh-5rem)] px-4 pt-12 md:pt-16 pb-32 text-center z-10 bg-[#fffdf7]/50"
         >
             <motion.div
                 style={{ opacity, y }}
@@ -81,22 +86,27 @@ export default function Hero() {
                     </div>
                 </div>
 
-                {/* Reveal venue */}
+                {/* Reveal dual venues */}
                 <AnimatePresence>
                     {isDateFullyRevealed && (
                         <motion.div
                             initial={{ opacity: 0, height: 0, y: 10 }}
                             animate={{ opacity: 1, height: "auto", y: 0 }}
                             transition={{ duration: 1 }}
-                            className="text-2xl md:text-3xl font-light text-foreground/80 flex items-center justify-center gap-2 overflow-hidden"
+                            className="font-light text-foreground/80 flex flex-col items-center justify-center gap-3 overflow-hidden"
                         >
                             <div className="w-6 h-6 text-primary flex-shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z" />
                                 </svg>
                             </div>
-                            <div className="text-primary font-serif tracking-wide text-2xl md:text-3xl">
-                                {siteConfig.venue.name}
+
+                            <div className="text-primary font-serif tracking-wide text-xl md:text-3xl text-center">
+                                <div>{siteConfig.venues.church.name}</div>
+                                <div className="text-[10px] md:text-xs font-sans uppercase tracking-[0.2em] my-2 opacity-60">
+                                    Followed by reception at
+                                </div>
+                                <div>{siteConfig.venues.reception.name}</div>
                             </div>
                         </motion.div>
                     )}
@@ -132,20 +142,24 @@ export default function Hero() {
                 </div>
             </motion.div>
 
-            {/* Absolute positioned bouncing scroll indicator */}
-            {/* CHANGED: Increased bottom-8 to bottom-24 md:bottom-32 to raise it higher */}
+            {/* positioned bouncing scroll indicator connected to scroll state */}
             <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.5, duration: 1 }}
-                className="absolute bottom-24 md:bottom-32 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-primary/70 animate-bounce"
+                style={{ opacity: indicatorOpacity }}
+                className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 pointer-events-none"
             >
-                <span className="text-[10px] md:text-xs uppercase tracking-[0.2em] font-medium text-center">
-                    Scroll for details
-                </span>
-                <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                </svg>
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1.5, duration: 1 }}
+                    className="flex flex-col items-center gap-2 text-primary/70 animate-bounce bg-white/30 p-2 rounded-full backdrop-blur-sm"
+                >
+                    <span className="text-[10px] md:text-xs uppercase tracking-[0.2em] font-medium text-center px-2">
+                        Scroll for details
+                    </span>
+                    <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                    </svg>
+                </motion.div>
             </motion.div>
         </section>
     );

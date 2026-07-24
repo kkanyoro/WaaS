@@ -1,9 +1,15 @@
 export interface WeddingConfig {
     coupleNames: string;
     weddingDate: string;
-    venue: {
-        name: string;
-        mapLink: string;
+    venues: {
+        church: {
+            name: string;
+            mapLink: string;
+        };
+        reception: {
+            name: string;
+            mapLink: string;
+        };
     };
     theme: {
         primaryColor: string;
@@ -47,10 +53,18 @@ export interface WeddingConfig {
 export const siteConfig: WeddingConfig = {
     coupleNames: "Faith & Chris",
     weddingDate: "2026-08-01T09:00:00",
-    venue: {
-        name: "KALRO, Thika",
-        mapLink: "https://maps.app.goo.gl/F4Y4qy3mav3GD5op8",
+
+    venues: {
+        church: {
+            name: "Chrisco Church, The Joyful Assembly",
+            mapLink: "https://maps.app.goo.gl/WVfVzjvsnxpS6cFt8",
+        },
+        reception: {
+            name: "KALRO HRI, Kandara, Thika",
+            mapLink: "https://maps.app.goo.gl/F4Y4qy3mav3GD5op8",
+        }
     },
+
     theme: {
         primaryColor: "#780606",
         secondaryColor: "#F5F5F5",
@@ -62,7 +76,7 @@ export const siteConfig: WeddingConfig = {
     features: {
         scratchToReveal: true,
         backgroundMusic: true,
-        musicSrc: "/audio/wedding-march.mp3",
+        musicSrc: "/audio/wema.mp3",
         liveGuestbook: true,
         backgroundType: "image",
         bgAsset: "images/background.jpg",
@@ -76,33 +90,35 @@ export const siteConfig: WeddingConfig = {
     },
     gallery: {
         images: [
-            "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=800&auto=format&fit=crop",
-            "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=800&auto=format&fit=crop",
-            "https://images.unsplash.com/photo-1520854221256-17451cc331bf?q=80&w=800&auto=format&fit=crop",
+            "/images/gallery/pic1.jpg",
+            "/images/gallery/pic2.jpg",
+            "/images/gallery/pic3.jpg",
+            "/images/gallery/pic4.png",
+            "/images/gallery/pic5.png",
+            "/images/gallery/pic6.png",
+            "/images/gallery/pic7.png",
+            "/images/gallery/pic8.png",
         ],
-        guestAlbumLink: "#",
+        guestAlbumLink: "https://photos.app.goo.gl/pCriZfDw5hj189V89",
     },
     content: {
         story: "It all started with a simple hello...",
+
         schedule: [
-            { time: "09:00 AM", event: "Arrival & Seating" },
-            { time: "10:00 AM", event: "The Vows", description: "Main ceremony begins." },
-            { time: "01:00 PM", event: "Reception", description: "Food, drinks, and dancing!" },
-            { time: "03:00 PM", event: "Gifts and speeches" },
-            { time: "04:30 PM", event: "Cake Cutting" },
-
-
+            {
+                time: "10:00 AM",
+                event: "Church Service",
+                description: "Join us as we exchange our vows at Chrisco Church The Joyful Assembly."
+            },
+            {
+                time: "01:00 PM",
+                event: "Reception",
+                description: "Let's celebrate! Join us for food, drinks, and dancing at KALRO, HRI Thika."
+            },
         ],
-        bridalTeam: [
-            { name: "Michael Scott", role: "Best Man" },
-            { name: "Pam Beesly", role: "Maid of Honor" },
-            { name: "Jim Halpert", role: "Groomsman" },
-            { name: "Angela Martin", role: "Bridesmaid" },
-            { name: "Dwight Schrute", role: "Groomsman" },
-            { name: "Kelly Kapoor", role: "Bridesmaid" },
-        ],
+
+        bridalTeam: [],
     },
-    // Dress Code & FAQs
     dressCode: {
         description: "We kindly request our guests to dress in elegant wear. Here is our theme color palette.",
         colors: [
@@ -116,6 +132,8 @@ export const siteConfig: WeddingConfig = {
     },
     faqs: [
         { question: "Can I bring a plus one?", answer: "Due to venue capacity, we can only accommodate guests formally specified on your RSVP." },
-        { question: "Is there parking available?", answer: "Yes, parking is available at the main entrance of the venue." },
-        { question: "Any gift preferences?", answer: "We look forward to your presence as we start a new chapter in our life. If you purpose to gift us, you are welcome, preferably in monetary form." },]
+        { question: "Is there parking available?", answer: "Yes, parking is available at the main entrance of both venues." },
+        // Kept this at the bottom to target it for the STK Push button in page.tsx
+        { question: "Any gift preferences?", answer: "We look forward to your presence as we start a new chapter in our life. If you purpose to gift us, you are welcome, preferably in monetary form." }
+    ]
 };

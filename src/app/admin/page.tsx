@@ -4,16 +4,18 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
 
+// UPDATED: Replaced boolean is_attending with the 4 distinct text options
+type AttendanceType = "church_only" | "reception_only" | "both" | "none";
+
 type RSVP = {
     id: string;
     created_at: string;
     name: string;
-    is_attending: boolean;
+    attendance_type: AttendanceType;
     extra_guests_count: number;
     extra_guest_names: string[];
 };
 
-// Type for Gifts
 type Gift = {
     id: string;
     created_at: string;
@@ -24,18 +26,20 @@ type Gift = {
     receipt_number: string;
 };
 
+// Filter Types
+type RsvpFilter = "all" | "church_only" | "reception_only" | "both" | "none";
+
 export default function AdminDashboard() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [passcode, setPasscode] = useState("");
     const [authError, setAuthError] = useState("");
 
     const [rsvps, setRsvps] = useState<RSVP[]>([]);
-    const [gifts, setGifts] = useState<Gift[]>([]); // State for Gifts
+    const [gifts, setGifts] = useState<Gift[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Filter States
-    const [activeTab, setActiveTab] = useState<"rsvps" | "gifts">("rsvps"); // Master toggle
-    const [filter, setFilter] = useState<"all" | "attending" | "not attending">("all");
+    const [activeTab, setActiveTab] = useState<"rsvps" | "gifts">("rsvps");
+    const [filter, setFilter] = useState<RsvpFilter>("all");
 
     const handleLogin = (e: React.SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -60,7 +64,6 @@ export default function AdminDashboard() {
     useEffect(() => {
         if (isAuthenticated) {
             const fetchData = async () => {
-                // Fetch both tables at once
                 const [rsvpRes, giftRes] = await Promise.all([
                     supabase.from("rsvps").select("*").order("created_at", { ascending: false }),
                     supabase.from("mpesa_transactions").select("*").order("created_at", { ascending: false })
@@ -99,21 +102,23 @@ export default function AdminDashboard() {
         );
     }
 
-    // Calculations: RSVPs
+    // UPDATED CALCULATIONS: We now split headcounts between the two venues
     const totalResponses = rsvps.length;
-    const attendingCount = rsvps.filter(r => r.is_attending).length;
-    const declinedCount = totalResponses - attendingCount;
-    const totalHeadcount = rsvps
-        .filter(r => r.is_attending)
+    const declinedCount = rsvps.filter(r => r.attendance_type === "none").length;
+
+    const churchHeadcount = rsvps
+        .filter(r => r.attendance_type === "church_only" || r.attendance_type === "both")
+        .reduce((sum, rsvp) => sum + 1 + rsvp.extra_guests_count, 0);
+
+    const receptionHeadcount = rsvps
+        .filter(r => r.attendance_type === "reception_only" || r.attendance_type === "both")
         .reduce((sum, rsvp) => sum + 1 + rsvp.extra_guests_count, 0);
 
     const filteredRsvps = rsvps.filter(r => {
-        if (filter === "attending") return r.is_attending;
-        if (filter === "not attending") return !r.is_attending;
-        return true;
+        if (filter === "all") return true;
+        return r.attendance_type === filter;
     });
 
-    // Calculations: Gifts
     const completedGifts = gifts.filter(g => g.status === "completed");
     const totalRaised = completedGifts.reduce((sum, g) => sum + Number(g.amount), 0);
 
@@ -121,7 +126,6 @@ export default function AdminDashboard() {
         <div className="min-h-screen bg-gray-50 p-4 md:p-12 text-gray-900 selection:bg-primary/30">
             <div className="max-w-6xl mx-auto space-y-8">
 
-                {/* Header & Navigation */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
                         <h1 className="text-3xl md:text-4xl font-serif text-gray-900 mb-1">Dashboard</h1>
@@ -129,19 +133,16 @@ export default function AdminDashboard() {
                     </div>
 
                     <div className="flex items-center gap-4 w-full md:w-auto">
-                        {/* Master View Toggle */}
                         <div className="flex bg-gray-200/50 p-1 rounded-full flex-1 md:flex-none">
                             <button
                                 onClick={() => setActiveTab("rsvps")}
-                                className={`flex-1 md:px-6 py-2 rounded-full text-xs uppercase tracking-widest transition-all ${activeTab === "rsvps" ? "bg-white shadow-sm text-primary font-medium" : "text-gray-500 hover:text-gray-900"
-                                    }`}
+                                className={`flex-1 md:px-6 py-2 rounded-full text-xs uppercase tracking-widest transition-all ${activeTab === "rsvps" ? "bg-white shadow-sm text-primary font-medium" : "text-gray-500 hover:text-gray-900"}`}
                             >
                                 Guest List
                             </button>
                             <button
                                 onClick={() => setActiveTab("gifts")}
-                                className={`flex-1 md:px-6 py-2 rounded-full text-xs uppercase tracking-widest transition-all ${activeTab === "gifts" ? "bg-white shadow-sm text-green-600 font-medium" : "text-gray-500 hover:text-gray-900"
-                                    }`}
+                                className={`flex-1 md:px-6 py-2 rounded-full text-xs uppercase tracking-widest transition-all ${activeTab === "gifts" ? "bg-white shadow-sm text-green-600 font-medium" : "text-gray-500 hover:text-gray-900"}`}
                             >
                                 Gifts
                             </button>
@@ -160,31 +161,36 @@ export default function AdminDashboard() {
                     </div>
                 </div>
 
-                {/* RSVP VIEW */}
                 {activeTab === "rsvps" && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
-                        {/* Stats */}
+                        {/* UPDATED STATS TO REFLECT VENUE HEADCOUNTS */}
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
-                            <CompactStatCard title="Headcount" value={totalHeadcount} highlight />
-                            <CompactStatCard title="Responses" value={totalResponses} />
-                            <CompactStatCard title="Attending" value={attendingCount} />
-                            <CompactStatCard title="Not Attending" value={declinedCount} />
+                            <CompactStatCard title="Total Responses" value={totalResponses} />
+                            <CompactStatCard title="Church Guests" value={churchHeadcount} highlight />
+                            <CompactStatCard title="Reception Guests" value={receptionHeadcount} highlight />
+                            <CompactStatCard title="Declined" value={declinedCount} />
                         </div>
 
-                        {/* Table */}
                         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
-                            <div className="p-4 border-b border-gray-100 bg-gray-50/50 flex justify-center md:justify-start">
-                                <div className="inline-flex bg-gray-200/50 p-1 rounded-lg w-full md:w-auto">
-                                    {(["all", "attending", "not attending"] as const).map((f) => (
+                            <div className="p-4 border-b border-gray-100 bg-gray-50/50">
+                                {/* NEW FILTER BUTTONS */}
+                                <div className="flex flex-wrap gap-2 md:inline-flex bg-gray-200/50 p-1 rounded-lg w-full md:w-auto">
+                                    {[
+                                        { id: "all", label: "All" },
+                                        { id: "both", label: "Both" },
+                                        { id: "church_only", label: "Church Only" },
+                                        { id: "reception_only", label: "Reception Only" },
+                                        { id: "none", label: "Declined" }
+                                    ].map((f) => (
                                         <button
-                                            key={f}
-                                            onClick={() => setFilter(f)}
-                                            className={`flex-1 md:px-6 py-2 rounded-md text-xs uppercase tracking-widest transition-all ${filter === f
-                                                ? "bg-white shadow-sm text-primary font-medium"
-                                                : "text-gray-500 hover:text-gray-900"
+                                            key={f.id}
+                                            onClick={() => setFilter(f.id as RsvpFilter)}
+                                            className={`flex-1 md:flex-none px-3 md:px-6 py-2 rounded-md text-[10px] md:text-xs uppercase tracking-widest transition-all ${filter === f.id
+                                                    ? "bg-white shadow-sm text-primary font-medium"
+                                                    : "text-gray-500 hover:text-gray-900"
                                                 }`}
                                         >
-                                            {f}
+                                            {f.label}
                                         </button>
                                     ))}
                                 </div>
@@ -193,8 +199,8 @@ export default function AdminDashboard() {
                                 <table className="w-full text-left border-collapse">
                                     <thead>
                                         <tr className="bg-white border-b border-gray-100 text-[10px] md:text-xs uppercase tracking-widest text-gray-400">
-                                            <th className="p-4 font-medium">Guest Name</th>
-                                            <th className="p-4 font-medium text-center">Status</th>
+                                            <th className="p-4 font-medium min-w-[150px]">Guest Name</th>
+                                            <th className="p-4 font-medium text-center min-w-[120px]">Status</th>
                                             <th className="p-4 font-medium text-center">Party Size</th>
                                             <th className="p-4 font-medium text-right">Details</th>
                                         </tr>
@@ -203,7 +209,7 @@ export default function AdminDashboard() {
                                         {isLoading ? (
                                             <tr><td colSpan={4} className="p-8 text-center text-gray-400">Loading data...</td></tr>
                                         ) : filteredRsvps.length === 0 ? (
-                                            <tr><td colSpan={4} className="p-8 text-center text-gray-400">No RSVPs Yet.</td></tr>
+                                            <tr><td colSpan={4} className="p-8 text-center text-gray-400">No RSVPs match this filter.</td></tr>
                                         ) : (
                                             filteredRsvps.map((rsvp) => <RSVPRow key={rsvp.id} rsvp={rsvp} />)
                                         )}
@@ -214,10 +220,8 @@ export default function AdminDashboard() {
                     </motion.div>
                 )}
 
-                {/* GIFTS VIEW */}
                 {activeTab === "gifts" && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
-                        {/* Stats */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
                             <div className="p-6 rounded-xl border bg-[#52B44B] border-[#52B44B] text-white flex flex-col justify-center">
                                 <h3 className="text-xs uppercase tracking-widest mb-1 text-white/80">Total Received (KES)</h3>
@@ -233,7 +237,6 @@ export default function AdminDashboard() {
                             </div>
                         </div>
 
-                        {/* Table */}
                         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
                             <div className="p-4 border-b border-gray-100 bg-gray-50/50">
                                 <h3 className="text-sm font-medium text-gray-700">Transactions</h3>
@@ -280,7 +283,6 @@ export default function AdminDashboard() {
                     </motion.div>
                 )}
 
-                {/* Mobile Logout (shown at bottom on mobile) */}
                 <button
                     onClick={() => {
                         sessionStorage.removeItem("isAdminAuthed");
@@ -297,7 +299,6 @@ export default function AdminDashboard() {
     );
 }
 
-// Stat Card
 function CompactStatCard({ title, value, highlight = false }: { title: string, value: number, highlight?: boolean }) {
     return (
         <div className={`p-4 md:p-5 rounded-xl border ${highlight ? 'bg-primary border-primary text-[#fffdf7]' : 'bg-white border-gray-100 text-gray-900'}`}>
@@ -311,10 +312,29 @@ function CompactStatCard({ title, value, highlight = false }: { title: string, v
     );
 }
 
-// Expandable Row Component
+// UPDATED: Now parses the 4 string types into styled badges
 function RSVPRow({ rsvp }: { rsvp: RSVP }) {
     const [isExpanded, setIsExpanded] = useState(false);
-    const hasExtras = rsvp.extra_guests_count > 0 && rsvp.is_attending;
+
+    const isActuallyAttending = rsvp.attendance_type !== "none";
+    const hasExtras = rsvp.extra_guests_count > 0 && isActuallyAttending;
+
+    const getStatusConfig = (type: AttendanceType) => {
+        switch (type) {
+            case "both":
+                return { label: "Both Events", style: "bg-green-50 text-green-600 border-green-100" };
+            case "church_only":
+                return { label: "Church Only", style: "bg-blue-50 text-blue-600 border-blue-100" };
+            case "reception_only":
+                return { label: "Reception Only", style: "bg-purple-50 text-purple-600 border-purple-100" };
+            case "none":
+                return { label: "Not Attending", style: "bg-red-50 text-red-500 border-red-100" };
+            default:
+                return { label: "Unknown", style: "bg-gray-50 text-gray-500 border-gray-100" };
+        }
+    };
+
+    const status = getStatusConfig(rsvp.attendance_type);
 
     return (
         <>
@@ -325,14 +345,13 @@ function RSVPRow({ rsvp }: { rsvp: RSVP }) {
                 <td className="p-4 font-serif text-base md:text-lg text-gray-800">{rsvp.name}</td>
 
                 <td className="p-4 text-center">
-                    <span className={`inline-block px-2 py-1 rounded-md text-[10px] md:text-xs font-medium tracking-wide uppercase ${rsvp.is_attending ? "bg-green-50 text-green-600 border border-green-100" : "bg-red-50 text-red-500 border border-red-100"
-                        }`}>
-                        {rsvp.is_attending ? "Attending" : "Not Attending"}
+                    <span className={`inline-block px-2 py-1 rounded-md text-[10px] whitespace-nowrap font-medium tracking-wide uppercase border ${status.style}`}>
+                        {status.label}
                     </span>
                 </td>
 
                 <td className="p-4 text-center text-gray-600 text-sm md:text-base">
-                    {rsvp.is_attending ? 1 + rsvp.extra_guests_count : 0}
+                    {isActuallyAttending ? 1 + rsvp.extra_guests_count : 0}
                 </td>
 
                 <td className="p-4 text-right">
@@ -352,7 +371,6 @@ function RSVPRow({ rsvp }: { rsvp: RSVP }) {
                 </td>
             </tr>
 
-            {/* Expandable Sub-Row for Extra Guests */}
             <AnimatePresence>
                 {isExpanded && hasExtras && (
                     <motion.tr

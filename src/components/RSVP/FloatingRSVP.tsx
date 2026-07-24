@@ -5,13 +5,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import GiftingModal from "../Sections/Gifting";
 
+type AttendanceType = "church_only" | "reception_only" | "both" | "none";
+
 export default function FloatingActions() {
     const [isRsvpOpen, setIsRsvpOpen] = useState(false);
     const [isGiftOpen, setIsGiftOpen] = useState(false);
 
     // Form State
     const [name, setName] = useState("");
-    const [isAttending, setIsAttending] = useState<boolean | null>(null);
+    const [attendanceType, setAttendanceType] = useState<AttendanceType | null>(null);
     const [extraCount, setExtraCount] = useState(0);
     const [extraNames, setExtraNames] = useState<string[]>([]);
     const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -22,19 +24,22 @@ export default function FloatingActions() {
         setExtraNames(newNames);
     };
 
+    const isActuallyAttending = attendanceType === "church_only" || attendanceType === "reception_only" || attendanceType === "both";
+
     const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (isAttending === null || !name.trim()) return;
+        if (attendanceType === null || !name.trim()) return;
         setStatus("loading");
 
-        const cleanedExtraNames = isAttending && extraCount > 0
+        const cleanedExtraNames = isActuallyAttending && extraCount > 0
             ? extraNames.slice(0, extraCount).map(n => n.trim()).filter(n => n !== "")
             : [];
 
+        // UPDATED: Sending attendance_type string instead of boolean
         const { error } = await supabase.from("rsvps").insert([{
             name: name.trim(),
-            is_attending: isAttending,
-            extra_guests_count: isAttending ? extraCount : 0,
+            attendance_type: attendanceType,
+            extra_guests_count: isActuallyAttending ? extraCount : 0,
             extra_guest_names: cleanedExtraNames,
         }]);
 
@@ -46,6 +51,13 @@ export default function FloatingActions() {
             setTimeout(() => { setIsRsvpOpen(false); setStatus("idle"); }, 3000);
         }
     };
+
+    const rsvpOptions = [
+        { id: "church_only", label: "Church Only", sub: "Here for the vows!" },
+        { id: "reception_only", label: "Reception Only", sub: "Ready to celebrate!" },
+        { id: "both", label: "Attending Both", sub: "Double the fun!" },
+        { id: "none", label: "Celebrating in Spirit", sub: "Sadly, can't make it" },
+    ];
 
     return (
         <>
@@ -91,12 +103,30 @@ export default function FloatingActions() {
                                             <label className="block text-sm uppercase tracking-widest text-gray-500 mb-2">Full Name</label>
                                             <input type="text" required value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-transparent border-b border-gray-300 py-2 focus:outline-none focus:border-primary transition-colors text-lg" placeholder="e.g. Kevin Kanyoro" />
                                         </div>
-                                        <div className="flex gap-4 pt-2">
-                                            <button type="button" onClick={() => setIsAttending(true)} className={`flex-1 py-3 border rounded-lg transition-all ${isAttending === true ? 'bg-primary border-primary text-[#fffdf7] shadow-md' : 'border-gray-300 text-gray-600 hover:border-primary'}`}>Attending</button>
-                                            <button type="button" onClick={() => setIsAttending(false)} className={`flex-1 py-3 border rounded-lg transition-all ${isAttending === false ? 'bg-gray-800 border-gray-800 text-white shadow-md' : 'border-gray-300 text-gray-600 hover:border-gray-800'}`}>Can't make it</button>
+
+                                        {/* RSVP BUTTONS */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+                                            {rsvpOptions.map((option) => (
+                                                <button
+                                                    key={option.id}
+                                                    type="button"
+                                                    onClick={() => setAttendanceType(option.id as AttendanceType)}
+                                                    className={`flex flex-col items-center justify-center py-3 px-2 border rounded-lg transition-all ${attendanceType === option.id
+                                                            ? "bg-primary border-primary text-[#fffdf7] shadow-md"
+                                                            : "border-gray-300 text-gray-600 hover:border-primary hover:text-primary"
+                                                        }`}
+                                                >
+                                                    <span className="font-serif text-base">{option.label}</span>
+                                                    <span className={`text-[9px] uppercase tracking-widest mt-1 ${attendanceType === option.id ? "text-[#fffdf7]/80" : "text-gray-400"}`}>
+                                                        {option.sub}
+                                                    </span>
+                                                </button>
+                                            ))}
                                         </div>
+
+                                        {/* EXTRA GUESTS DROPDOWN */}
                                         <AnimatePresence>
-                                            {isAttending === true && (
+                                            {isActuallyAttending && (
                                                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="space-y-4 overflow-hidden pt-4 border-t border-gray-100">
                                                     <div className="flex items-center justify-between bg-transparent border border-gray-200 rounded-lg p-3">
                                                         <span className="text-sm uppercase tracking-widest text-gray-500">Extra Guests</span>
@@ -115,7 +145,7 @@ export default function FloatingActions() {
                                                 </motion.div>
                                             )}
                                         </AnimatePresence>
-                                        <button type="submit" disabled={status === "loading" || isAttending === null || !name.trim()} className="w-full mt-8 py-4 bg-primary text-[#fffdf7] rounded-lg tracking-widest uppercase disabled:opacity-50 transition-opacity flex justify-center items-center">
+                                        <button type="submit" disabled={status === "loading" || attendanceType === null || !name.trim()} className="w-full mt-8 py-4 bg-primary text-[#fffdf7] rounded-lg tracking-widest uppercase disabled:opacity-50 transition-opacity flex justify-center items-center">
                                             {status === "loading" ? <div className="w-6 h-6 border-2 border-[#fffdf7] border-t-transparent rounded-full animate-spin" /> : "Submit RSVP"}
                                         </button>
                                         {status === "error" && <p className="text-red-500 text-sm text-center">Something went wrong. Please try again.</p>}

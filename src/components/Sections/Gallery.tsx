@@ -17,7 +17,7 @@ export default function Gallery() {
                 if (scrollLeft + clientWidth >= scrollWidth - 10) {
                     scrollContainerRef.current.scrollTo({ left: 0, behavior: "smooth" });
                 } else {
-                    // Otherwise, scroll right by one image width (approx 300px)
+                    // Otherwise, scroll right by approx one image width
                     scrollContainerRef.current.scrollBy({ left: 320, behavior: "smooth" });
                 }
             }
@@ -47,19 +47,19 @@ export default function Gallery() {
                 </div>
 
                 {/* Scrolling Carousel */}
-                <div className="relative w-full max-w-7xl mx-auto px-4 md:px-12 group">
+                <div className="relative w-full max-w-[100vw] mx-auto group">
 
                     {/* Desktop Navigation Arrows (Hidden on mobile) */}
                     <button
                         onClick={() => scroll("left")}
-                        className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/80 backdrop-blur border border-primary/20 rounded-full items-center justify-center text-primary shadow-lg z-20 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
+                        className="hidden md:flex absolute left-8 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/80 backdrop-blur border border-primary/20 rounded-full items-center justify-center text-primary shadow-lg z-20 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
                     >
                         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                     </button>
 
                     <button
                         onClick={() => scroll("right")}
-                        className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/80 backdrop-blur border border-primary/20 rounded-full items-center justify-center text-primary shadow-lg z-20 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
+                        className="hidden md:flex absolute right-8 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/80 backdrop-blur border border-primary/20 rounded-full items-center justify-center text-primary shadow-lg z-20 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
                     >
                         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                     </button>
@@ -67,19 +67,24 @@ export default function Gallery() {
                     {/* Image Container */}
                     <div
                         ref={scrollContainerRef}
-                        className="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-8 pt-4 px-4"
+                        className="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-8 pt-4 px-4 md:px-12 items-center"
                     >
                         {siteConfig.gallery.images.map((src, index) => (
                             <div
                                 key={index}
-                                className="snap-center shrink-0 w-[280px] md:w-[350px] aspect-[4/5] rounded-2xl overflow-hidden shadow-md border border-gray-100 relative group/img"
+                                // CHANGED: We now enforce a strict width AND height. 
+                                // Added bg-white and p-2 to create a clean "picture frame" effect.
+                                className="snap-center shrink-0 w-[280px] md:w-[350px] h-[350px] md:h-[450px] rounded-2xl overflow-hidden shadow-md border border-gray-200 relative group/img bg-white flex items-center justify-center p-2 md:p-3"
                             >
-                                <div
-                                    className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover/img:scale-110"
-                                    style={{ backgroundImage: `url(${src})` }}
+                                {/* CHANGED: w-full, h-full, and object-contain. 
+                                    This scales the image to fit the container perfectly without cutting anything off. */}
+                                <img
+                                    src={src}
+                                    alt={`Gallery moment ${index + 1}`}
+                                    className="w-full h-full object-contain transition-transform duration-700 group-hover/img:scale-105 rounded-xl"
                                 />
                                 {/* Subtle overlay for depth */}
-                                <div className="absolute inset-0 shadow-[inset_0_0_40px_rgba(0,0,0,0.1)] pointer-events-none" />
+                                <div className="absolute inset-0 shadow-[inset_0_0_20px_rgba(0,0,0,0.03)] pointer-events-none rounded-2xl" />
                             </div>
                         ))}
                     </div>

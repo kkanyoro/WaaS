@@ -72,7 +72,7 @@ export default function Guestbook() {
     };
 
     return (
-        <section className="relative min-h-screen flex items-center justify-center py-24 px-6 md:px-12 z-10 bg-[#fffdf7]/50">
+        <section className="relative min-h-screen flex items-center justify-center py-24 px-6 md:px-12 z-10">
             <ScrollReveal className="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start">
 
                 {/* LEFT SIDE: The Form */}
