@@ -27,11 +27,12 @@ export interface WeddingConfig {
         backgroundType: 'image' | 'canvas' | 'video';
         bgAsset?: string;
     };
+    // explicitly supports both a Till and a Phone Number
     mpesa: {
         enabled: boolean;
-        type: 'till' | 'paybill' | 'send_money';
-        number: string;
-        accountName?: string;
+        tillNumber: string;
+        phoneNumber: string;
+        accountName: string;
         message: string;
     };
     gallery: {
@@ -56,11 +57,11 @@ export const siteConfig: WeddingConfig = {
 
     venues: {
         church: {
-            name: "Chrisco Church, The Joyful Assembly",
+            name: "Chrisco Church, The Joyful Assembly, Thika",
             mapLink: "https://maps.app.goo.gl/WVfVzjvsnxpS6cFt8",
         },
         reception: {
-            name: "KALRO HRI, Kandara, Thika",
+            name: "KALRO-HRI, Kandara",
             mapLink: "https://maps.app.goo.gl/F4Y4qy3mav3GD5op8",
         }
     },
@@ -81,13 +82,16 @@ export const siteConfig: WeddingConfig = {
         backgroundType: "image",
         bgAsset: "images/background.jpg",
     },
+
+    // holds both payment options
     mpesa: {
         enabled: true,
-        type: "till",
-        number: "123456",
-        accountName: "Faith Weds Chris",
+        tillNumber: "6802677",
+        phoneNumber: "0713795315",
+        accountName: "Chris Mugo",
         message: "We look forward to your presence as we start a new chapter in our life. If you purpose to gift us, you are welcome. You can use the details below.",
     },
+
     gallery: {
         images: [
             "/images/gallery/pic1.jpg",
@@ -131,9 +135,7 @@ export const siteConfig: WeddingConfig = {
         ]
     },
     faqs: [
-        { question: "Can I bring a plus one?", answer: "Due to venue capacity, we can only accommodate guests formally specified on your RSVP." },
         { question: "Is there parking available?", answer: "Yes, parking is available at the main entrance of both venues." },
-        // Kept this at the bottom to target it for the STK Push button in page.tsx
         { question: "Any gift preferences?", answer: "We look forward to your presence as we start a new chapter in our life. If you purpose to gift us, you are welcome, preferably in monetary form." }
     ]
 };

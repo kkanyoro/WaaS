@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
 
-// UPDATED: Replaced boolean is_attending with the 4 distinct text options
 type AttendanceType = "church_only" | "reception_only" | "both" | "none";
 
 type RSVP = {
@@ -66,6 +65,7 @@ export default function AdminDashboard() {
             const fetchData = async () => {
                 const [rsvpRes, giftRes] = await Promise.all([
                     supabase.from("rsvps").select("*").order("created_at", { ascending: false }),
+                    // This will safely return empty if no automated STK pushes have occurred
                     supabase.from("mpesa_transactions").select("*").order("created_at", { ascending: false })
                 ]);
 
@@ -102,7 +102,7 @@ export default function AdminDashboard() {
         );
     }
 
-    // UPDATED CALCULATIONS: We now split headcounts between the two venues
+    // CALCULATIONS: Splitting headcounts based on venue selections
     const totalResponses = rsvps.length;
     const declinedCount = rsvps.filter(r => r.attendance_type === "none").length;
 
@@ -119,6 +119,7 @@ export default function AdminDashboard() {
         return r.attendance_type === filter;
     });
 
+    // GIFT CALCULATIONS
     const completedGifts = gifts.filter(g => g.status === "completed");
     const totalRaised = completedGifts.reduce((sum, g) => sum + Number(g.amount), 0);
 
@@ -163,7 +164,6 @@ export default function AdminDashboard() {
 
                 {activeTab === "rsvps" && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
-                        {/* UPDATED STATS TO REFLECT VENUE HEADCOUNTS */}
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
                             <CompactStatCard title="Total Responses" value={totalResponses} />
                             <CompactStatCard title="Church Guests" value={churchHeadcount} highlight />
@@ -173,7 +173,6 @@ export default function AdminDashboard() {
 
                         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
                             <div className="p-4 border-b border-gray-100 bg-gray-50/50">
-                                {/* NEW FILTER BUTTONS */}
                                 <div className="flex flex-wrap gap-2 md:inline-flex bg-gray-200/50 p-1 rounded-lg w-full md:w-auto">
                                     {[
                                         { id: "all", label: "All" },
@@ -186,8 +185,8 @@ export default function AdminDashboard() {
                                             key={f.id}
                                             onClick={() => setFilter(f.id as RsvpFilter)}
                                             className={`flex-1 md:flex-none px-3 md:px-6 py-2 rounded-md text-[10px] md:text-xs uppercase tracking-widest transition-all ${filter === f.id
-                                                    ? "bg-white shadow-sm text-primary font-medium"
-                                                    : "text-gray-500 hover:text-gray-900"
+                                                ? "bg-white shadow-sm text-primary font-medium"
+                                                : "text-gray-500 hover:text-gray-900"
                                                 }`}
                                         >
                                             {f.label}
@@ -312,7 +311,6 @@ function CompactStatCard({ title, value, highlight = false }: { title: string, v
     );
 }
 
-// UPDATED: Now parses the 4 string types into styled badges
 function RSVPRow({ rsvp }: { rsvp: RSVP }) {
     const [isExpanded, setIsExpanded] = useState(false);
 

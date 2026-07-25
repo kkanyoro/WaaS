@@ -11,6 +11,9 @@ interface GiftingModalProps {
 }
 
 export default function GiftingModal({ isOpen, onClose }: GiftingModalProps) {
+    // TOGGLE FOR FUTURE REUSE: 
+    const USE_STK_PUSH = false;
+
     const [name, setName] = useState("");
     const [phone, setPhone] = useState("");
     const [amount, setAmount] = useState("");
@@ -20,6 +23,10 @@ export default function GiftingModal({ isOpen, onClose }: GiftingModalProps) {
     const [errorMessage, setErrorMessage] = useState("");
     const [receipt, setReceipt] = useState("");
     const [checkoutRequestId, setCheckoutRequestId] = useState("");
+
+    // Independent copy states for both options
+    const [copiedTill, setCopiedTill] = useState(false);
+    const [copiedPhone, setCopiedPhone] = useState(false);
 
     const normalizeKenyanMobile = (value: string) => {
         let digits = value.replace(/\D+/g, "");
@@ -31,8 +38,9 @@ export default function GiftingModal({ isOpen, onClose }: GiftingModalProps) {
 
     const isValidKenyanMobile = (value: string) => /^254(7|1)\d{8}$/.test(value);
 
+    // Supabase Listener for STK Push
     useEffect(() => {
-        if (status !== "waiting_for_pin" || !checkoutRequestId) return;
+        if (status !== "waiting_for_pin" || !checkoutRequestId || !USE_STK_PUSH) return;
         const channel = supabase
             .channel(`mpesa-${checkoutRequestId}`)
             .on("postgres_changes", { event: "UPDATE", schema: "public", table: "mpesa_transactions", filter: `checkout_request_id=eq.${checkoutRequestId}` },
@@ -48,7 +56,7 @@ export default function GiftingModal({ isOpen, onClose }: GiftingModalProps) {
                 }
             ).subscribe();
         return () => { supabase.removeChannel(channel); };
-    }, [status, checkoutRequestId]);
+    }, [status, checkoutRequestId, USE_STK_PUSH]);
 
     const handleSTKPush = async (e: React.SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -78,11 +86,22 @@ export default function GiftingModal({ isOpen, onClose }: GiftingModalProps) {
         }
     };
 
-    const resetForm = () => {
-        setName(""); setPhone(""); setAmount(""); setStatus("idle"); setErrorMessage(""); setPhoneError("");
+    const handleCopyTill = () => {
+        navigator.clipboard.writeText(siteConfig.mpesa.tillNumber);
+        setCopiedTill(true);
+        setTimeout(() => setCopiedTill(false), 2000);
     };
 
-    // Auto-reset when closed
+    const handleCopyPhone = () => {
+        navigator.clipboard.writeText(siteConfig.mpesa.phoneNumber);
+        setCopiedPhone(true);
+        setTimeout(() => setCopiedPhone(false), 2000);
+    };
+
+    const resetForm = () => {
+        setName(""); setPhone(""); setAmount(""); setStatus("idle"); setErrorMessage(""); setPhoneError(""); setCopiedTill(false); setCopiedPhone(false);
+    };
+
     useEffect(() => { if (!isOpen) resetForm(); }, [isOpen]);
 
     if (!siteConfig.mpesa.enabled) return null;
@@ -93,7 +112,7 @@ export default function GiftingModal({ isOpen, onClose }: GiftingModalProps) {
                 <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 md:p-6">
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
-                    <motion.div initial={{ opacity: 0, y: 50, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.95 }} className="relative w-full max-w-lg bg-[#fffdf7] rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+                    <motion.div initial={{ opacity: 0, y: 50, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.95 }} className="relative w-full max-w-2xl bg-[#fffdf7] rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
                         <div className="h-2 w-full bg-[#52B44B]" />
                         <button onClick={onClose} className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-800 transition-colors z-10">
                             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
@@ -105,25 +124,73 @@ export default function GiftingModal({ isOpen, onClose }: GiftingModalProps) {
                                     <motion.div key="idle" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="space-y-6 text-center">
                                         <h2 className="text-3xl font-serif text-primary">Gift the Couple</h2>
                                         <p className="text-gray-600 font-light leading-relaxed mb-6 text-sm">{siteConfig.mpesa.message}</p>
-                                        <form onSubmit={handleSTKPush} className="space-y-5 text-left">
-                                            <div>
-                                                <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Your Name</label>
-                                                <div className="flex items-center border-b border-gray-300 py-2 focus-within:border-[#52B44B]"><input type="text" required value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-transparent focus:outline-none text-gray-800 text-lg tracking-wider" placeholder="e.g. John Doe" /></div>
+
+                                        {USE_STK_PUSH ? (
+                                            /* STK PUSH FORM (Preserved) */
+                                            <>
+                                                <form onSubmit={handleSTKPush} className="space-y-5 text-left max-w-lg mx-auto">
+                                                    <div>
+                                                        <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Your Name</label>
+                                                        <div className="flex items-center border-b border-gray-300 py-2 focus-within:border-[#52B44B]"><input type="text" required value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-transparent focus:outline-none text-gray-800 text-lg tracking-wider" placeholder="e.g. John Doe" /></div>
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">M-Pesa Phone Number</label>
+                                                        <div className="flex items-center border-b border-gray-300 py-2 focus-within:border-[#52B44B]"><span className="text-gray-500 mr-2">+254</span><input type="tel" required value={phone} onChange={(e) => { setPhone(e.target.value); setPhoneError(""); }} className="w-full bg-transparent focus:outline-none text-gray-800 text-lg tracking-wider" placeholder="712 345 678" /></div>
+                                                        {phoneError && <p className="text-xs text-red-500 mt-2">{phoneError}</p>}
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Amount (KES)</label>
+                                                        <div className="flex items-center border-b border-gray-300 py-2 focus-within:border-[#52B44B]"><span className="text-gray-500 mr-2 font-serif font-bold">KES</span><input type="number" required min="1" value={amount} onChange={(e) => setAmount(e.target.value)} className="w-full bg-transparent focus:outline-none text-gray-800 text-lg tracking-wider" placeholder="1000" /></div>
+                                                    </div>
+                                                    <button type="submit" className="w-full mt-6 py-4 bg-[#52B44B] text-white rounded-xl tracking-widest uppercase text-sm font-medium hover:bg-[#43963e] transition-colors shadow-lg shadow-green-500/30">Send via STK Prompt</button>
+                                                </form>
+                                                <div className="pt-6 border-t border-gray-100 mt-6 max-w-lg mx-auto">
+                                                    <p className="text-xs text-gray-400 uppercase tracking-widest">Or pay manually</p>
+                                                    <p className="text-sm text-gray-600 mt-1 font-serif">Till: <span className="font-bold text-gray-900">{siteConfig.mpesa.tillNumber}</span></p>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            /* DUAL MANUAL OPTIONS UI (Till & Phone) */
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+
+                                                {/* TILL NUMBER */}
+                                                <div className="w-full bg-green-50/50 border border-green-100 rounded-2xl p-6 relative overflow-hidden flex flex-col justify-between shadow-[0_4px_20px_rgba(82,180,75,0.05)]">
+                                                    <div className="absolute top-0 left-0 w-full h-1 bg-[#52B44B]/40" />
+                                                    <div className="mb-4">
+                                                        <p className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-gray-500 mb-2 font-medium">Buy Goods Till</p>
+                                                        <p className="text-3xl md:text-4xl font-serif text-gray-900 tracking-wider mb-1">{siteConfig.mpesa.tillNumber}</p>
+                                                        <p className="text-xs text-gray-500 font-light">{siteConfig.mpesa.accountName}</p>
+                                                    </div>
+                                                    <button
+                                                        onClick={handleCopyTill}
+                                                        className={`flex items-center justify-center w-full py-3 rounded-full uppercase tracking-widest text-[10px] font-medium transition-all duration-300 ${copiedTill ? 'bg-gray-900 text-white shadow-lg' : 'bg-[#52B44B] text-white shadow-sm hover:bg-[#43963e]'}`}
+                                                    >
+                                                        {copiedTill ? "Copied!" : "Copy Till"}
+                                                    </button>
+                                                </div>
+
+                                                {/* PHONE NUMBER */}
+                                                <div className="w-full bg-green-50/50 border border-green-100 rounded-2xl p-6 relative overflow-hidden flex flex-col justify-between shadow-[0_4px_20px_rgba(82,180,75,0.05)]">
+                                                    <div className="absolute top-0 left-0 w-full h-1 bg-[#52B44B]/40" />
+                                                    <div className="mb-4">
+                                                        <p className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-gray-500 mb-2 font-medium">Send Money</p>
+                                                        <p className="text-3xl md:text-4xl font-serif text-gray-900 tracking-wider mb-1">{siteConfig.mpesa.phoneNumber}</p>
+                                                        <p className="text-xs text-gray-500 font-light">{siteConfig.mpesa.accountName}</p>
+                                                    </div>
+                                                    <button
+                                                        onClick={handleCopyPhone}
+                                                        className={`flex items-center justify-center w-full py-3 rounded-full uppercase tracking-widest text-[10px] font-medium transition-all duration-300 ${copiedPhone ? 'bg-gray-900 text-white shadow-lg' : 'bg-[#52B44B] text-white shadow-sm hover:bg-[#43963e]'}`}
+                                                    >
+                                                        {copiedPhone ? "Copied!" : "Copy Number"}
+                                                    </button>
+                                                </div>
+
                                             </div>
-                                            <div>
-                                                <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">M-Pesa Phone Number</label>
-                                                <div className="flex items-center border-b border-gray-300 py-2 focus-within:border-[#52B44B]"><span className="text-gray-500 mr-2">+254</span><input type="tel" required value={phone} onChange={(e) => { setPhone(e.target.value); setPhoneError(""); }} className="w-full bg-transparent focus:outline-none text-gray-800 text-lg tracking-wider" placeholder="712 345 678" /></div>
-                                                {phoneError && <p className="text-xs text-red-500 mt-2">{phoneError}</p>}
-                                            </div>
-                                            <div>
-                                                <label className="block text-xs uppercase tracking-widest text-gray-500 mb-2">Amount (KES)</label>
-                                                <div className="flex items-center border-b border-gray-300 py-2 focus-within:border-[#52B44B]"><span className="text-gray-500 mr-2 font-serif font-bold">KES</span><input type="number" required min="1" value={amount} onChange={(e) => setAmount(e.target.value)} className="w-full bg-transparent focus:outline-none text-gray-800 text-lg tracking-wider" placeholder="1000" /></div>
-                                            </div>
-                                            <button type="submit" className="w-full mt-6 py-4 bg-[#52B44B] text-white rounded-xl tracking-widest uppercase text-sm font-medium hover:bg-[#43963e] transition-colors shadow-lg shadow-green-500/30">Send via STK Prompt</button>
-                                        </form>
-                                        <div className="pt-6 border-t border-gray-100 mt-6"><p className="text-xs text-gray-400 uppercase tracking-widest">Or pay manually</p><p className="text-sm text-gray-600 mt-1 font-serif">{siteConfig.mpesa.type === "paybill" ? "Paybill: " : "Till: "}<span className="font-bold text-gray-900">{siteConfig.mpesa.number}</span></p></div>
+                                        )}
                                     </motion.div>
                                 )}
+
+                                {/* Loading States */}
                                 {status === "loading" && (
                                     <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center space-y-6 py-10"><div className="w-12 h-12 border-4 border-gray-100 border-t-[#52B44B] rounded-full animate-spin" /><p className="text-gray-600 font-light animate-pulse">Connecting to Safaricom...</p></motion.div>
                                 )}

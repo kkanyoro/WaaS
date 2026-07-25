@@ -89,21 +89,18 @@ const FAQs = () => {
             <h4 className="font-serif text-sm md:text-lg text-gray-800 mb-1.5 md:mb-2.5 tracking-wide">{faq.question}</h4>
             <p className="text-[11px] md:text-sm text-gray-600 font-light leading-6 md:leading-7">{faq.answer}</p>
 
-            {/* THE INJECTED GIFT/TILL BOX */}
+            {/* GIFT BOX */}
             {faq.question.toLowerCase().includes("gift") && (
               <div className="mt-5 p-5 md:p-6 bg-[#fffdf7] border border-primary/20 rounded-xl flex flex-col items-center text-center shadow-sm">
+                <span className="text-[10px] md:text-xs uppercase tracking-[0.18em] text-gray-500 mb-4">
+                  M-Pesa Options Available
+                </span>
                 <button
                   onClick={() => setIsFaqGiftOpen(true)}
                   className="px-8 py-3 bg-primary text-[#fffdf7] font-serif tracking-widest text-[10px] md:text-xs rounded-full shadow-md hover:bg-primary/90 hover:scale-105 transition-all"
                 >
                   GIFT THE COUPLE
                 </button>
-                <span className="text-[8px] md:text-[10px] uppercase tracking-[0.18em] text-gray-500 mt-3 mb-2">
-                  Till Number
-                </span>
-                <span className="font-serif text-2xl md:text-3xl text-primary mb-1 tracking-wide">
-                  {siteConfig.mpesa.number}
-                </span>
               </div>
             )}
           </motion.div>
