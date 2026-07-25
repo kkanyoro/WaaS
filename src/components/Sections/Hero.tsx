@@ -104,7 +104,7 @@ export default function Hero() {
                             <div className="text-primary font-serif tracking-wide text-xl md:text-3xl text-center">
                                 <div>{siteConfig.venues.church.name}</div>
                                 <div className="text-[10px] md:text-xs font-sans uppercase tracking-[0.2em] my-2 opacity-60">
-                                    Followed by reception at
+                                    Followed by a reception at
                                 </div>
                                 <div>{siteConfig.venues.reception.name}</div>
                             </div>

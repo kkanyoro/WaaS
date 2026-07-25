@@ -31,8 +31,8 @@ export interface WeddingConfig {
     mpesa: {
         enabled: boolean;
         tillNumber: string;
-        phoneNumber: string;
-        accountName: string;
+        tillName: string;
+        phoneNumbers: { number: string; name: string }[];
         message: string;
     };
     gallery: {
@@ -57,11 +57,11 @@ export const siteConfig: WeddingConfig = {
 
     venues: {
         church: {
-            name: "Chrisco Church, The Joyful Assembly, Thika",
+            name: "Chrisco Church, The Joyful Assembly, Thika.",
             mapLink: "https://maps.app.goo.gl/WVfVzjvsnxpS6cFt8",
         },
         reception: {
-            name: "KALRO-HRI, Kandara",
+            name: "KALRO-HRI, Kandara.",
             mapLink: "https://maps.app.goo.gl/F4Y4qy3mav3GD5op8",
         }
     },
@@ -87,8 +87,12 @@ export const siteConfig: WeddingConfig = {
     mpesa: {
         enabled: true,
         tillNumber: "6802677",
-        phoneNumber: "0713795315",
-        accountName: "Chris Mugo",
+        tillName: "Chris Mugo",
+        phoneNumbers: [
+            { number: "0700596486", name: "Faith Mwendwa" },
+            { number: "0713795315", name: "Chris Mugo" },
+        ],
+
         message: "We look forward to your presence as we start a new chapter in our life. If you purpose to gift us, you are welcome. You can use the details below.",
     },
 
@@ -112,12 +116,12 @@ export const siteConfig: WeddingConfig = {
             {
                 time: "10:00 AM",
                 event: "Church Service",
-                description: "Join us as we exchange our vows at Chrisco Church The Joyful Assembly."
+                description: "Join us as we exchange our vows at Chrisco Church, The Joyful Assembly, Thika."
             },
             {
                 time: "01:00 PM",
                 event: "Reception",
-                description: "Let's celebrate! Join us for food, drinks, and dancing at KALRO, HRI Thika."
+                description: "Let's celebrate! Join us for food, drinks, and dancing at KALRO-HRI, Kandara."
             },
         ],
 

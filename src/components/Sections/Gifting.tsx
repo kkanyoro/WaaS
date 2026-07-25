@@ -24,9 +24,8 @@ export default function GiftingModal({ isOpen, onClose }: GiftingModalProps) {
     const [receipt, setReceipt] = useState("");
     const [checkoutRequestId, setCheckoutRequestId] = useState("");
 
-    // Independent copy states for both options
-    const [copiedTill, setCopiedTill] = useState(false);
-    const [copiedPhone, setCopiedPhone] = useState(false);
+    // UPDATED: A dynamic state to track which specific card's button was copied
+    const [copiedId, setCopiedId] = useState<string | null>(null);
 
     const normalizeKenyanMobile = (value: string) => {
         let digits = value.replace(/\D+/g, "");
@@ -86,20 +85,15 @@ export default function GiftingModal({ isOpen, onClose }: GiftingModalProps) {
         }
     };
 
-    const handleCopyTill = () => {
-        navigator.clipboard.writeText(siteConfig.mpesa.tillNumber);
-        setCopiedTill(true);
-        setTimeout(() => setCopiedTill(false), 2000);
-    };
-
-    const handleCopyPhone = () => {
-        navigator.clipboard.writeText(siteConfig.mpesa.phoneNumber);
-        setCopiedPhone(true);
-        setTimeout(() => setCopiedPhone(false), 2000);
+    // UPDATED: Unified copy function for multiple cards
+    const handleCopy = (text: string, id: string) => {
+        navigator.clipboard.writeText(text);
+        setCopiedId(id);
+        setTimeout(() => setCopiedId(null), 2000);
     };
 
     const resetForm = () => {
-        setName(""); setPhone(""); setAmount(""); setStatus("idle"); setErrorMessage(""); setPhoneError(""); setCopiedTill(false); setCopiedPhone(false);
+        setName(""); setPhone(""); setAmount(""); setStatus("idle"); setErrorMessage(""); setPhoneError(""); setCopiedId(null);
     };
 
     useEffect(() => { if (!isOpen) resetForm(); }, [isOpen]);
@@ -112,7 +106,7 @@ export default function GiftingModal({ isOpen, onClose }: GiftingModalProps) {
                 <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 md:p-6">
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
-                    <motion.div initial={{ opacity: 0, y: 50, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.95 }} className="relative w-full max-w-2xl bg-[#fffdf7] rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+                    <motion.div initial={{ opacity: 0, y: 50, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20, scale: 0.95 }} className="relative w-full max-w-3xl bg-[#fffdf7] rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
                         <div className="h-2 w-full bg-[#52B44B]" />
                         <button onClick={onClose} className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-800 transition-colors z-10">
                             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
@@ -150,47 +144,52 @@ export default function GiftingModal({ isOpen, onClose }: GiftingModalProps) {
                                                 </div>
                                             </>
                                         ) : (
-                                            /* DUAL MANUAL OPTIONS UI (Till & Phone) */
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                                            /* MULTIPLE MANUAL OPTIONS UI (Mapped dynamically) */
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
 
-                                                {/* TILL NUMBER */}
-                                                <div className="w-full bg-green-50/50 border border-green-100 rounded-2xl p-6 relative overflow-hidden flex flex-col justify-between shadow-[0_4px_20px_rgba(82,180,75,0.05)]">
+                                                {/* Card 1: TILL NUMBER */}
+                                                <div className="w-full bg-green-50/50 border border-green-100 rounded-2xl p-5 relative overflow-hidden flex flex-col justify-between shadow-[0_4px_20px_rgba(82,180,75,0.05)]">
                                                     <div className="absolute top-0 left-0 w-full h-1 bg-[#52B44B]/40" />
                                                     <div className="mb-4">
-                                                        <p className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-gray-500 mb-2 font-medium">Buy Goods Till</p>
-                                                        <p className="text-3xl md:text-4xl font-serif text-gray-900 tracking-wider mb-1">{siteConfig.mpesa.tillNumber}</p>
-                                                        <p className="text-xs text-gray-500 font-light">{siteConfig.mpesa.accountName}</p>
+                                                        <p className="text-[10px] uppercase tracking-[0.2em] text-gray-500 mb-2 font-medium">Buy Goods Till</p>
+                                                        <p className="text-2xl md:text-3xl font-serif text-gray-900 tracking-wider mb-1">{siteConfig.mpesa.tillNumber}</p>
+                                                        <p className="text-xs text-gray-500 font-light">{siteConfig.mpesa.tillName}</p>
                                                     </div>
                                                     <button
-                                                        onClick={handleCopyTill}
-                                                        className={`flex items-center justify-center w-full py-3 rounded-full uppercase tracking-widest text-[10px] font-medium transition-all duration-300 ${copiedTill ? 'bg-gray-900 text-white shadow-lg' : 'bg-[#52B44B] text-white shadow-sm hover:bg-[#43963e]'}`}
+                                                        onClick={() => handleCopy(siteConfig.mpesa.tillNumber, 'till')}
+                                                        className={`flex items-center justify-center w-full py-2.5 rounded-full uppercase tracking-widest text-[10px] font-medium transition-all duration-300 ${copiedId === 'till' ? 'bg-gray-900 text-white shadow-lg' : 'bg-[#52B44B] text-white shadow-sm hover:bg-[#43963e]'}`}
                                                     >
-                                                        {copiedTill ? "Copied!" : "Copy Till"}
+                                                        {copiedId === 'till' ? "Copied!" : "Copy Till"}
                                                     </button>
                                                 </div>
 
-                                                {/* PHONE NUMBER */}
-                                                <div className="w-full bg-green-50/50 border border-green-100 rounded-2xl p-6 relative overflow-hidden flex flex-col justify-between shadow-[0_4px_20px_rgba(82,180,75,0.05)]">
-                                                    <div className="absolute top-0 left-0 w-full h-1 bg-[#52B44B]/40" />
-                                                    <div className="mb-4">
-                                                        <p className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-gray-500 mb-2 font-medium">Send Money</p>
-                                                        <p className="text-3xl md:text-4xl font-serif text-gray-900 tracking-wider mb-1">{siteConfig.mpesa.phoneNumber}</p>
-                                                        <p className="text-xs text-gray-500 font-light">{siteConfig.mpesa.accountName}</p>
-                                                    </div>
-                                                    <button
-                                                        onClick={handleCopyPhone}
-                                                        className={`flex items-center justify-center w-full py-3 rounded-full uppercase tracking-widest text-[10px] font-medium transition-all duration-300 ${copiedPhone ? 'bg-gray-900 text-white shadow-lg' : 'bg-[#52B44B] text-white shadow-sm hover:bg-[#43963e]'}`}
-                                                    >
-                                                        {copiedPhone ? "Copied!" : "Copy Number"}
-                                                    </button>
-                                                </div>
+                                                {/* Cards 2 & 3: PHONE NUMBERS */}
+                                                {siteConfig.mpesa.phoneNumbers.map((phone, index) => {
+                                                    const cardId = `phone-${index}`;
+                                                    return (
+                                                        <div key={cardId} className="w-full bg-green-50/50 border border-green-100 rounded-2xl p-5 relative overflow-hidden flex flex-col justify-between shadow-[0_4px_20px_rgba(82,180,75,0.05)]">
+                                                            <div className="absolute top-0 left-0 w-full h-1 bg-[#52B44B]/40" />
+                                                            <div className="mb-4">
+                                                                <p className="text-[10px] uppercase tracking-[0.2em] text-gray-500 mb-2 font-medium">Send Money</p>
+                                                                <p className="text-2xl md:text-3xl font-serif text-gray-900 tracking-wider mb-1">{phone.number}</p>
+                                                                <p className="text-xs text-gray-500 font-light">{phone.name}</p>
+                                                            </div>
+                                                            <button
+                                                                onClick={() => handleCopy(phone.number, cardId)}
+                                                                className={`flex items-center justify-center w-full py-2.5 rounded-full uppercase tracking-widest text-[10px] font-medium transition-all duration-300 ${copiedId === cardId ? 'bg-gray-900 text-white shadow-lg' : 'bg-[#52B44B] text-white shadow-sm hover:bg-[#43963e]'}`}
+                                                            >
+                                                                {copiedId === cardId ? "Copied!" : "Copy Number"}
+                                                            </button>
+                                                        </div>
+                                                    )
+                                                })}
 
                                             </div>
                                         )}
                                     </motion.div>
                                 )}
 
-                                {/* Loading States */}
+                                {/* Loading States (Preserved) */}
                                 {status === "loading" && (
                                     <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center space-y-6 py-10"><div className="w-12 h-12 border-4 border-gray-100 border-t-[#52B44B] rounded-full animate-spin" /><p className="text-gray-600 font-light animate-pulse">Connecting to Safaricom...</p></motion.div>
                                 )}
